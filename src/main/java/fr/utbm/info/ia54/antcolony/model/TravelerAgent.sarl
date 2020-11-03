@@ -8,7 +8,7 @@ import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 
-/** 
+/**  
  * @author ma-pe
  * 
  */
