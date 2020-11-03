@@ -1,0 +1,101 @@
+package fr.utbm.info.ia54.antcolony.model;
+
+import fr.utbm.info.ia54.antcolony.view.Display
+import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+import io.sarl.core.Schedules
+import io.sarl.core.AgentTask
+
+event MainReady{}
+
+agent MainAgent {
+
+	var env : Environment; //Stores the position of the objects in the simulation
+	var disp : Display; //Handles the view
+	var met : Metrics; //Stores information on the simulation
+
+	// launching options
+	var isDefaultMap : Boolean
+
+	uses Logging, Lifecycle, DefaultContextInteractions, Schedules
+
+	on Initialize {
+		// Event trigger before the agent begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("Main agent spawned !");
+
+	
+
+		synchronized (this) //Im not sure what synchronized do but it removes the warnings
+		{
+			// Retrieve passed parameters like so
+			isDefaultMap = occurrence.parameters.get(0) as Boolean;
+			
+			env = new Environment(isDefaultMap);
+			met = new Metrics();
+
+			info("Environment initialized.");
+
+			disp = new Display(env, met);
+
+			// Find a way to transfer the stage from StartWindow to here
+			info("Display initialized.");
+
+			disp.changeDisplayFrameTitle("Simulation");
+			disp.changeDisplayFrameSize(1280, 960);
+
+			info("Displaying...");
+
+			emit(new MainReady());
+		}
+	}
+	
+	on MainReady
+	{
+		info("Starting to loop...")
+		
+		
+		synchronized (this)
+		{
+			var framerate : int = 20;
+			val taskMain : AgentTask = task("Main Loop")
+			taskMain.every(1000 / framerate) [
+				// Stuff to do every frame
+				disp.displaySimulationFrame();
+			]
+
+			/*
+			//If we ever need to regularly spawn agents
+			val taskSpawn = task("Agent Spawning Loop")
+			val rate : long = Math.round(agentsDelay.doubleValue() * 1000);
+			
+			taskSpawn.every(rate) [
+
+				if (met.getActiveAgents() < met.getSimultaneousAgents() && met.getSpawnedAgents() < met.getTotalAgents()) {
+
+					met.setActiveAgents(met.getActiveAgents() + 1);
+					met.setSpawnedAgents(met.getSpawnedAgents() + 1); 
+					
+					info("Spawning new agent.");
+
+					spawn(CustomerAgent, randomExit);
+				}
+			]
+			*/
+		}
+	}
+	
+	on ExitApplicationEvent
+	{
+		killMe;
+	}
+
+	on Destroy {
+		// Event trigger when the agent is destroyed from the system.
+		// You should put all the resource releasing statements in this block of code.
+		info("The main agent has stopped.")
+	}
+}

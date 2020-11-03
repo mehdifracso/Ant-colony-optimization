@@ -1,0 +1,33 @@
+/** 
+ * 
+ */
+package fr.utbm.info.ia54.antcolony.model
+
+import io.sarl.core.Destroy
+import io.sarl.core.Initialize
+import io.sarl.core.Lifecycle
+import io.sarl.core.Logging
+
+/** 
+ * @author ma-pe
+ * 
+ */
+agent TravelerAgent {
+	uses Logging, Lifecycle
+
+	on Initialize {
+		// Event trigger before the agent begin to live or to be used.
+		// You should put all the initialization statements in this block of code.
+		info("The agent was started.")
+	}
+
+	on ExitApplicationEvent {
+		killMe;
+	}
+
+	on Destroy {
+		// Event trigger when the agent is destroyed from the system.
+		// You should put all the resource releasing statements in this block of code.
+		info("The agent was stopped.")
+	}
+}
