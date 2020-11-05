@@ -1,6 +1,6 @@
 package fr.utbm.info.ia54.antcolony.view;
 
-import fr.utbm.info.ia54.antcolony.Main;
+import fr.utbm.info.ia54.antcolony.StartWindow;
 import fr.utbm.info.ia54.antcolony.model.Environment;
 import fr.utbm.info.ia54.antcolony.model.Metrics;
 import javafx.scene.Group;
@@ -19,7 +19,7 @@ public class Display{
 		Platform.runLater(new Runnable() {
             @Override
             public void run() {
-            	Main.getStage().setTitle(title);
+            	StartWindow.getStage().setTitle(title);
             }
         });
 	}
@@ -29,9 +29,9 @@ public class Display{
 		Platform.runLater(new Runnable() {
             @Override
             public void run() {
-            	Main.getStage().setWidth(width);
-            	Main.getStage().setHeight(height);
-            	Main.getStage().centerOnScreen();
+            	StartWindow.getStage().setWidth(width);
+            	StartWindow.getStage().setHeight(height);
+            	StartWindow.getStage().centerOnScreen();
             }
         });
 	}
@@ -66,14 +66,14 @@ public class Display{
         Scene scene=new Scene(g, Screen.getPrimary().getBounds().getWidth()*3/4, Screen.getPrimary().getBounds().getHeight()*3/4);
         
         
-            	Main.getStage().setScene(scene);
+            	StartWindow.getStage().setScene(scene);
             }
         });
     }
 
-	public Display(Environment environment, Metrics metrics) {
+	public Display(Environment environment, Metrics metrics, Boolean isDebugMode) {
 		this.environment = environment;
 		this.metrics = metrics;
-		this.debug=true;
+		this.debug=isDebugMode;
 	}
 }

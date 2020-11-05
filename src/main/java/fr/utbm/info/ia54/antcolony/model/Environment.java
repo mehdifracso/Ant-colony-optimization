@@ -2,6 +2,7 @@ package fr.utbm.info.ia54.antcolony.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
@@ -124,6 +125,21 @@ public class Environment {
 		
 	}
 	
+	public City getCityByID(UUID id)
+	{
+		City resultCity = null;
+		
+		for(City city : cities)
+		{
+			if(city.getUuid().equals(id))
+			{
+				resultCity=city;
+			}
+		}
+		
+		return resultCity;
+	}
+	
 	public City getCityByName(String name)
 	{
 		City resultCity = null;
@@ -138,6 +154,35 @@ public class Environment {
 		
 		return resultCity;
 	}
+	
+	public List<Road> getAdjacentRoads(City city)
+	{
+		List<Road> roads=new ArrayList<Road>();
+		
+		for(Road road : this.roads)
+		{
+			if(road.getCity1()==city || road.getCity2()==city)
+			{
+				roads.add(road);
+			}
+		}
+		
+		return roads;
+	}
+	
+	public void updateWeights()
+	{
+		for(Road road : roads)
+		{
+			road.setWeight(road.getWeight()+road.getFutureWeight());
+			road.setFutureWeight(new Long(0));
+		}
+	}
+	
+	
+	
+	
+	//Display stuff
 	
 	public List<Circle> getCitiesRepresentation()
 	{
@@ -187,6 +232,15 @@ public class Environment {
 		
 		return roadsWeights;
 	}
+	
+	
+	
+	
+	
+	
+	
+	
+	//Autogen
 
 	public List<City> getCities() {
 		return cities;

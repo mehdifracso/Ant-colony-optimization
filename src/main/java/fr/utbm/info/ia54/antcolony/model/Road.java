@@ -1,8 +1,15 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import fr.utbm.info.ia54.antcolony.model.City;
 
 public class Road 
 {
@@ -18,8 +25,64 @@ public class Road
 	//Deciding factor on which road to take
 	private Long weight;
 	
+	//Weights to be added next round
+	private Long futureWeight;
 	
 	
+	public void increaseFutureWeight(Long increase)
+	{
+		this.futureWeight+=increase;
+	}
+	
+	public Set<City> getCities()
+	{
+		Set<City> cities = new HashSet<City>();
+		cities.add(city1);
+		cities.add(city2);
+		return cities;
+	}
+	
+
+	//Returns null if attempting to travel along that road starting from a city not connected by that road
+	public City travel(City startingCity) {
+		City endingCity=null;
+		
+		if(startingCity==city1)
+		{
+			endingCity=city2;
+		}
+		else if(startingCity==city2)
+		{
+			endingCity=city1;
+		}
+		
+		return endingCity;
+	}
+	
+
+	
+	public static void sortRoadsByWeights(List<Road> roads)
+	{
+		Collections.sort(roads, new Comparator<Road>() 
+		{
+		    @Override
+		    public int compare(Road r1, Road r2) 
+		    {
+		    	int res=0;
+        		if(r1.weight<r2.weight)
+        		{
+        			res = -1;
+        		}
+        		else if(r1.weight>r2.weight)
+        		{
+        			res = 1;
+        		}
+        		return res;
+			}
+		});
+	}
+	
+	//Display stuff
 	
 	public Line getLine()
 	{
@@ -49,19 +112,24 @@ public class Road
 		return roadText;
 	}
 	
+	//Autogen
+	
 	public Road() {
 		super();
 		this.city1 = null;
 		this.city2 = null;
 		this.timeTaken = new Long(0);
 		this.weight = new Long(0);
+		this.futureWeight = new Long(0);
 	}
-	public Road(City city1, City city2, long timeTaken, long weight) {
+
+	public Road(City city1, City city2, Long timeTaken, Long weight, Long futureWeight) {
 		super();
 		this.city1 = city1;
 		this.city2 = city2;
 		this.timeTaken = timeTaken;
 		this.weight = weight;
+		this.futureWeight = futureWeight;
 	}
 
 	public City getCity1() {
@@ -80,19 +148,28 @@ public class Road
 		this.city2 = city2;
 	}
 
-	public long getTimeTaken() {
+	public Long getTimeTaken() {
 		return timeTaken;
 	}
 
-	public void setTimeTaken(long timeTaken) {
+	public void setTimeTaken(Long timeTaken) {
 		this.timeTaken = timeTaken;
 	}
 
-	public long getWeight() {
+	public Long getWeight() {
 		return weight;
 	}
 
-	public void setWeight(long weight) {
+	public void setWeight(Long weight) {
 		this.weight = weight;
 	}
+
+	public Long getFutureWeight() {
+		return futureWeight;
+	}
+
+	public void setFutureWeight(Long futureWeight) {
+		this.futureWeight = futureWeight;
+	}
+	
 }

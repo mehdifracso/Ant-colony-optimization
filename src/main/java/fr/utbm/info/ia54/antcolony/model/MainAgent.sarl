@@ -1,45 +1,46 @@
 package fr.utbm.info.ia54.antcolony.model;
 
 import fr.utbm.info.ia54.antcolony.view.Display
-import io.sarl.core.DefaultContextInteractions
+import io.sarl.core.AgentTask
 import io.sarl.core.Destroy
 import io.sarl.core.Initialize
 import io.sarl.core.Lifecycle
 import io.sarl.core.Logging
 import io.sarl.core.Schedules
-import io.sarl.core.AgentTask
+import java.util.List
 
-event MainReady{}
-
-agent MainAgent {
+agent MainAgent 
+{
 
 	var env : Environment; //Stores the position of the objects in the simulation
 	var disp : Display; //Handles the view
 	var met : Metrics; //Stores information on the simulation
+	
+	//Launching options
+	var isDefaultMap : Boolean 
+	var isDebugMode : Boolean
 
-	// launching options
-	var isDefaultMap : Boolean
+	uses Logging, Lifecycle, Schedules
 
-	uses Logging, Lifecycle, DefaultContextInteractions, Schedules
-
-	on Initialize {
-		// Event trigger before the agent begin to live or to be used.
-		// You should put all the initialization statements in this block of code.
-		info("Main agent spawned !");
+	on Initialize 
+	{
+		synchronized (this) // Im not sure what synchronized do but it removes the warnings
+		{
+			loggingName = "Main Agent"
+			info("Main agent spawned !");
 
 	
 
-		synchronized (this) //Im not sure what synchronized do but it removes the warnings
-		{
 			// Retrieve passed parameters like so
 			isDefaultMap = occurrence.parameters.get(0) as Boolean;
+			isDebugMode = occurrence.parameters.get(1) as Boolean;
 			
 			env = new Environment(isDefaultMap);
-			met = new Metrics();
+			met = new Metrics(env);
 
 			info("Environment initialized.");
 
-			disp = new Display(env, met);
+			disp = new Display(env, met, isDebugMode);
 
 			// Find a way to transfer the stage from StartWindow to here
 			info("Display initialized.");
@@ -47,44 +48,82 @@ agent MainAgent {
 			disp.changeDisplayFrameTitle("Simulation");
 			disp.changeDisplayFrameSize(1280, 960);
 
-			info("Displaying...");
 
-			emit(new MainReady());
+			// I guess we just want the visuals to update and we want the agents to update ASAP and not wait for next frame
+			// So Im making 2 loops, altho agents arent as much a loop as they are a nonstop exchange
+			info("Displaying...");
+			displayLoop();
+
+			info("Starting to loop...")
+			startAgents();
 		}
 	}
 	
-	on MainReady
+	def displayLoop(): void
 	{
-		info("Starting to loop...")
-		
-		
 		synchronized (this)
 		{
 			var framerate : int = 20;
 			val taskMain : AgentTask = task("Main Loop")
-			taskMain.every(1000 / framerate) [
-				// Stuff to do every frame
-				disp.displaySimulationFrame();
-			]
-
-			/*
-			//If we ever need to regularly spawn agents
-			val taskSpawn = task("Agent Spawning Loop")
-			val rate : long = Math.round(agentsDelay.doubleValue() * 1000);
+			// Stuff to do every frame :
 			
-			taskSpawn.every(rate) [
-
-				if (met.getActiveAgents() < met.getSimultaneousAgents() && met.getSpawnedAgents() < met.getTotalAgents()) {
-
-					met.setActiveAgents(met.getActiveAgents() + 1);
-					met.setSpawnedAgents(met.getSpawnedAgents() + 1); 
-					
-					info("Spawning new agent.");
-
-					spawn(CustomerAgent, randomExit);
-				}
+			taskMain.every(1000 / framerate) 
+			[
+				
+				disp.displaySimulationFrame();
+				
 			]
-			*/
+
+		}
+	}
+	
+	//Starts a new round
+	def startAgents() : void
+	{
+		synchronized(this)
+		{
+			for (startCity : env.getCities()) {
+				met.increaseActiveAgents();
+				spawn(TravelerAgent, env, met, startCity, isDebugMode);
+			}
+		}
+	}
+	
+	//Records the result of a finished agent
+	on TravelsFinished
+	{
+		synchronized(this)
+		{
+			met.decreaseActiveAgents();
+			var pathTaken : List<Road> = occurrence.pathTaken;
+			var timeTaken : Long = occurrence.timeTaken;
+
+			if (met.fastestTime.equals("TBD") || timeTaken<met.fastestTime.longValue)
+			{
+				if(isDebugMode)
+				{
+					info("new record!")
+				}
+				met.fastestTime=timeTaken.toString();
+				met.formattedFastestPath = pathTaken;
+			}
+			
+			for(road : pathTaken)
+			{
+				road.increaseFutureWeight(timeTaken);
+			}
+			
+			//Updates weights & starts a new round
+			if(met.activeAgents==0)
+			{
+				met.increaseElapsedRounds();
+				env.updateWeights();
+				if(isDebugMode)
+				{
+					info("New round")
+				}
+				startAgents();
+			}
 		}
 	}
 	
@@ -93,9 +132,8 @@ agent MainAgent {
 		killMe;
 	}
 
-	on Destroy {
-		// Event trigger when the agent is destroyed from the system.
-		// You should put all the resource releasing statements in this block of code.
+	on Destroy 
+	{
 		info("The main agent has stopped.")
 	}
 }

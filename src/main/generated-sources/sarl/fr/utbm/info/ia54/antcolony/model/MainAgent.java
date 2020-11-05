@@ -1,12 +1,14 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import fr.utbm.info.ia54.antcolony.model.City;
 import fr.utbm.info.ia54.antcolony.model.Environment;
 import fr.utbm.info.ia54.antcolony.model.ExitApplicationEvent;
-import fr.utbm.info.ia54.antcolony.model.MainReady;
 import fr.utbm.info.ia54.antcolony.model.Metrics;
+import fr.utbm.info.ia54.antcolony.model.Road;
+import fr.utbm.info.ia54.antcolony.model.TravelerAgent;
+import fr.utbm.info.ia54.antcolony.model.TravelsFinished;
 import fr.utbm.info.ia54.antcolony.view.Display;
 import io.sarl.core.AgentTask;
-import io.sarl.core.DefaultContextInteractions;
 import io.sarl.core.Destroy;
 import io.sarl.core.Initialize;
 import io.sarl.core.Lifecycle;
@@ -21,8 +23,10 @@ import io.sarl.lang.core.Agent;
 import io.sarl.lang.core.BuiltinCapacitiesProvider;
 import io.sarl.lang.core.DynamicSkillProvider;
 import io.sarl.lang.core.Skill;
+import io.sarl.lang.scoping.extensions.cast.PrimitiveCastExtensions;
 import io.sarl.lang.util.ClearableReference;
 import java.util.Collection;
+import java.util.List;
 import java.util.UUID;
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Extension;
@@ -42,35 +46,40 @@ public class MainAgent extends Agent {
   
   private Boolean isDefaultMap;
   
+  private Boolean isDebugMode;
+  
   private void $behaviorUnit$Initialize$0(final Initialize occurrence) {
-    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Main agent spawned !");
     synchronized (this) {
+      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.setLoggingName("Main Agent");
+      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("Main agent spawned !");
       Object _get = occurrence.parameters[0];
       this.isDefaultMap = ((Boolean) _get);
+      Object _get_1 = occurrence.parameters[1];
+      this.isDebugMode = ((Boolean) _get_1);
       Environment _environment = new Environment(((this.isDefaultMap) == null ? false : (this.isDefaultMap).booleanValue()));
       this.env = _environment;
-      Metrics _metrics = new Metrics();
+      Metrics _metrics = new Metrics(this.env);
       this.met = _metrics;
-      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("Environment initialized.");
-      Display _display = new Display(this.env, this.met);
-      this.disp = _display;
       Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_2 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_2.info("Display initialized.");
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_2.info("Environment initialized.");
+      Display _display = new Display(this.env, this.met, this.isDebugMode);
+      this.disp = _display;
+      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_3 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_3.info("Display initialized.");
       this.disp.changeDisplayFrameTitle("Simulation");
       this.disp.changeDisplayFrameSize(Integer.valueOf(1280), Integer.valueOf(960));
-      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_3 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_3.info("Displaying...");
-      DefaultContextInteractions _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER = this.$castSkill(DefaultContextInteractions.class, (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = this.$getSkill(DefaultContextInteractions.class)) : this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-      MainReady _mainReady = new MainReady();
-      _$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER.emit(_mainReady);
+      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_4 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_4.info("Displaying...");
+      this.displayLoop();
+      Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_5 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+      _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_5.info("Starting to loop...");
+      this.startAgents();
     }
   }
   
-  private void $behaviorUnit$MainReady$1(final MainReady occurrence) {
-    Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-    _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("Starting to loop...");
+  protected void displayLoop() {
     synchronized (this) {
       int framerate = 20;
       Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
@@ -80,6 +89,48 @@ public class MainAgent extends Agent {
         this.disp.displaySimulationFrame();
       };
       _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER_1.every(taskMain, (1000 / framerate), _function);
+    }
+  }
+  
+  protected void startAgents() {
+    synchronized (this) {
+      List<City> _cities = this.env.getCities();
+      for (final City startCity : _cities) {
+        {
+          this.met.increaseActiveAgents();
+          Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+          _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(TravelerAgent.class, this.env, this.met, startCity, this.isDebugMode);
+        }
+      }
+    }
+  }
+  
+  private void $behaviorUnit$TravelsFinished$1(final TravelsFinished occurrence) {
+    synchronized (this) {
+      this.met.decreaseActiveAgents();
+      List<Road> pathTaken = occurrence.pathTaken;
+      Long timeTaken = occurrence.timeTaken;
+      if ((this.met.getFastestTime().equals("TBD") || (timeTaken.longValue() < PrimitiveCastExtensions.longValue(this.met.getFastestTime())))) {
+        if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
+          Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+          _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("new record!");
+        }
+        this.met.setFastestTime(timeTaken.toString());
+        this.met.setFormattedFastestPath(pathTaken);
+      }
+      for (final Road road : pathTaken) {
+        road.increaseFutureWeight(timeTaken);
+      }
+      Integer _activeAgents = this.met.getActiveAgents();
+      if ((_activeAgents != null && (_activeAgents.intValue() == 0))) {
+        this.met.increaseElapsedRounds();
+        this.env.updateWeights();
+        if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
+          Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+          _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("New round");
+        }
+        this.startAgents();
+      }
     }
   }
   
@@ -124,21 +175,6 @@ public class MainAgent extends Agent {
   }
   
   @Extension
-  @ImportedCapacityFeature(DefaultContextInteractions.class)
-  @SyntheticMember
-  private transient ClearableReference<Skill> $CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS;
-  
-  @SyntheticMember
-  @Pure
-  @Inline(value = "$castSkill(DefaultContextInteractions.class, ($0$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || $0$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) ? ($0$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = $0$getSkill(DefaultContextInteractions.class)) : $0$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS)", imported = DefaultContextInteractions.class)
-  private DefaultContextInteractions $CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS$CALLER() {
-    if (this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS == null || this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS.get() == null) {
-      this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS = $getSkill(DefaultContextInteractions.class);
-    }
-    return $castSkill(DefaultContextInteractions.class, this.$CAPACITY_USE$IO_SARL_CORE_DEFAULTCONTEXTINTERACTIONS);
-  }
-  
-  @Extension
   @ImportedCapacityFeature(Schedules.class)
   @SyntheticMember
   private transient ClearableReference<Skill> $CAPACITY_USE$IO_SARL_CORE_SCHEDULES;
@@ -163,10 +199,10 @@ public class MainAgent extends Agent {
   
   @SyntheticMember
   @PerceptGuardEvaluator
-  private void $guardEvaluator$MainReady(final MainReady occurrence, final Collection<Runnable> ___SARLlocal_runnableCollection) {
+  private void $guardEvaluator$TravelsFinished(final TravelsFinished occurrence, final Collection<Runnable> ___SARLlocal_runnableCollection) {
     assert occurrence != null;
     assert ___SARLlocal_runnableCollection != null;
-    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$MainReady$1(occurrence));
+    ___SARLlocal_runnableCollection.add(() -> $behaviorUnit$TravelsFinished$1(occurrence));
   }
   
   @SyntheticMember
@@ -198,6 +234,8 @@ public class MainAgent extends Agent {
     MainAgent other = (MainAgent) obj;
     if (other.isDefaultMap != this.isDefaultMap)
       return false;
+    if (other.isDebugMode != this.isDebugMode)
+      return false;
     return super.equals(obj);
   }
   
@@ -208,6 +246,7 @@ public class MainAgent extends Agent {
     int result = super.hashCode();
     final int prime = 31;
     result = prime * result + (this.isDefaultMap ? 1231 : 1237);
+    result = prime * result + (this.isDebugMode ? 1231 : 1237);
     return result;
   }
   

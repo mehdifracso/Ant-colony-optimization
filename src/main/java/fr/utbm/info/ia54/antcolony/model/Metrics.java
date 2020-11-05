@@ -1,6 +1,7 @@
 package fr.utbm.info.ia54.antcolony.model;
 
 import java.util.Calendar;
+import java.util.List;
 
 import javafx.scene.text.Text;
 
@@ -9,10 +10,13 @@ public class Metrics
 	private Text display;
 
 	private Calendar startTime;
-	String fastestTime = "TBD";
-	Integer roundsElapsed = 0;
+	private String fastestTime;
+	private String fastestPath;
+	private Integer roundsElapsed;
+	private Integer totalCities;
+	private Integer activeAgents;
 	
-	public Metrics()
+	public Metrics(Environment env)
 	{
 		display=new Text();
 		display.setX(925);
@@ -20,7 +24,10 @@ public class Metrics
 		
 		startTime = Calendar.getInstance();
 		fastestTime = "TBD";
+		fastestPath = "TBD";
 		roundsElapsed = 0;
+		totalCities = env.cities.size();
+		activeAgents = 0;
 	}
 	
 	public Text getMetrics()
@@ -33,115 +40,118 @@ public class Metrics
 	{
 		
 		display.setText("\n\n"
-			+"Metrics :\n"
+			+"Metrics :\n\n"
 			+ "Elapsed time : " + (Calendar.getInstance().getTime().getTime() - startTime.getTime().getTime())/1000 + " s\n"
-    		+ "Fastest time : " + fastestTime + "\n"
-			+ "Rounds elapsed : " + roundsElapsed + "\n"
+			+ "Elapsed rounds : " + roundsElapsed + "\n"
+			+ "Active agents : " + activeAgents + "/ "+ totalCities + "\n"
+			+ "Fastest time : " + fastestTime + "min\n" //Arbitrary unit I decided of in environment
+			+ "Fastest path : " + fastestPath + "\n"
 			);
 	}
-	
-	
-	
-	
-	
-	
-	
 
-	/*
-	public void updateSheetMetrics(Long timeAlive)
+	public void increaseElapsedRounds()
 	{
-		updateDisplay();
-		//I have to do this check cus this function (along with all other functions in CustomerExitEvent) gets called twice for some reason
-		if(!deadAgentNow.contains(deadAgents/2) && deadAgents/2!=0)
-		{
-			deadAgentNow.add(deadAgents/2);
-			clockTime.add(Calendar.getInstance().getTime().getTime() - startTime.getTime().getTime());
-			agentTime.add(timeAlive);
-			averageTime.add(averageTimeAlive);
-			createExcelSheet(); //Since ExitApplicationEvent is broken and only works half the time Ill just create a new sheet everytime an agent exists instead of at the end of the application
-		}
+		this.roundsElapsed++;
 	}
 	
-	public void createExcelSheet()
-	{
-		try
-		{
-	        //Create excel
-	        Workbook wb = new HSSFWorkbook(); 
-	  
-	        //Create excel tab
-	        Sheet sheet = wb.createSheet("Results");
-	        
-	        // Specific row number 
-	        Row row = sheet.createRow(1); 
-	        
-	        Cell cell=row.createCell(0);
-	        
-	        cell.setCellValue("|");
-	  
-	        // Specific cell number 
-	        cell = row.createCell(1); 
-	        
-	        cell.setCellValue("Agents killed");
-	  
-	        // Specific cell number 
-	        cell = row.createCell(2); 
-	        
-	        cell.setCellValue("Time elapsed when this agent left the store (in ms)");
 
-	        cell = row.createCell(3); 
-	        
-	        cell.setCellValue("Time this agent spent in the store (in ms)");
-	        
-	        cell=row.createCell(4);
-	        
-	        cell.setCellValue("Average time agents spent in the store at this point in time (in ms)");
-	        
-	        cell=row.createCell(5);
-	        
-	        cell.setCellValue("Density of the crowd at this point in time (in customer per m²)");
-	        
-	        cell=row.createCell(6);
-	        
-	        cell.setCellValue("|");
-	        
-	        int i;
-	        for(i=0;i<clockTime.size();i++)
-	        {
-	        	row=sheet.createRow(i+2);
-	        	
-	        	cell=row.createCell(1);
-	        	cell.setCellValue(i+1);
-	        	
-	        	cell=row.createCell(2);
-	        	cell.setCellValue(clockTime.get(i));
-	        	
-	        	cell=row.createCell(3);
-	        	cell.setCellValue(agentTime.get(i));
-	        	
-	        	cell=row.createCell(4);
-	        	cell.setCellValue(averageTime.get(i));
-	        	
-	        	cell=row.createCell(5);
-	        	cell.setCellValue(densityMoment.get(i));
-	        }
-	        
-	        //Create file to write the excel in
-	        OutputStream file = new FileOutputStream("SimulationResults.xls"); 
-	        
-	        //Write to the file
-	        wb.write(file);
-	        
-	        wb.close();
-	        file.close();
-	        
-	        System.out.println("excel sheet successfully created");
-		}
-		catch(Exception e)
+
+	public void setFormattedFastestPath(List<Road> pathTaken) {
+		String fastestPathString = "\n";
+		City currentCity = null;
+
+		//Determining the first city making the assumption that the agent didnt take the same road twice in a row
+		//Since only the fastest of times get processed here, this is a fair assumption
+		//Altho it might cause some problems on some maps
+		if(pathTaken.get(1).getCities().contains(pathTaken.get(0).getCity1()))
 		{
-			System.out.println("Error creating excel sheet");
+			currentCity=pathTaken.get(0).getCity2();
 		}
+		else
+		{
+			currentCity=pathTaken.get(0).getCity1();
+		}
+		
+		fastestPathString+=currentCity.getName();
+		for(Road road : pathTaken)
+		{
+			if(currentCity==road.getCity1())
+			{
+				currentCity=road.getCity2();
+			}
+			else
+			{
+				currentCity=road.getCity1();
+			}
+			fastestPathString+="\n-> "+currentCity.getName();
+		}
+		
+		this.fastestPath = fastestPathString;
 	}
-	*/
+	
+	
+	public Text getDisplay() {
+		return display;
+	}
+
+	public void setDisplay(Text display) {
+		this.display = display;
+	}
+
+	public Calendar getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(Calendar startTime) {
+		this.startTime = startTime;
+	}
+
+	public String getFastestTime() {
+		return fastestTime;
+	}
+
+	public void setFastestTime(String fastestTime) {
+		this.fastestTime = fastestTime;
+	}
+
+	public String getFastestPath() {
+		return fastestPath;
+	}
+
+	public void setFastestPath(String fastestPath) {
+		this.fastestPath = fastestPath;
+	}
+
+	public Integer getRoundsElapsed() {
+		return roundsElapsed;
+	}
+
+	public void setRoundsElapsed(Integer roundsElapsed) {
+		this.roundsElapsed = roundsElapsed;
+	}
+
+	public Integer getTotalCities() {
+		return totalCities;
+	}
+
+	public void setTotalCities(Integer totalCities) {
+		this.totalCities = totalCities;
+	}
+
+	public Integer getActiveAgents() {
+		return activeAgents;
+	}
+
+	public void setActiveAgents(Integer activeAgents) {
+		this.activeAgents = activeAgents;
+	}
+
+	public void increaseActiveAgents() {
+		this.activeAgents++;
+	}
+
+	public void decreaseActiveAgents() {
+		this.activeAgents--;
+	}
 	
 }

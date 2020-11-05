@@ -1,11 +1,15 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import java.util.UUID;
+
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
 
 public class City 
 {
+	//An precise identifier in case two cities have the same name
+	private UUID uuid;
 	
 	//What the city is called
 	private String name;
@@ -44,18 +48,31 @@ public class City
 		return cityText;
 	}
 	
+	
 	public City() {
 		super();
+		this.uuid = null;
 		this.name = null;
 		this.x = null;
 		this.y = null;
 	}
-	public City(String name, Double x, Double y) {
+
+	public City(UUID uuid, String name, Double x, Double y) {
 		super();
+		this.uuid = uuid;
 		this.name = name;
 		this.x = x;
 		this.y = y;
 	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+
 	public String getName() {
 		return name;
 	}

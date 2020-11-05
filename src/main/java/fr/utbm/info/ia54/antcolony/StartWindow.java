@@ -14,7 +14,7 @@ import javafx.scene.control.CheckBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
-public class Main extends Application{
+public class StartWindow extends Application{
 	
 	static private Stage stage;
 	
@@ -23,6 +23,7 @@ public class Main extends Application{
 	private VBox layout;
 	private Button startButton;
 	private CheckBox defaultMapCheckBox;
+	private CheckBox debugModeCheckBox;
 	/*
 	private CheckBox benchesCheckBox;
 	private CheckBox exitCheckBox;
@@ -46,14 +47,14 @@ public class Main extends Application{
 	}
 	*/
 	
-	public static void spawnMainAgent(boolean isDefaultMap) throws Exception {
+	public static void spawnMainAgent(boolean isDefaultMap, boolean isDebugMode) throws Exception {
 		SREBootstrap bootstrap = SRE.getBootstrap();
-		bootstrap.startAgent(MainAgent.class, isDefaultMap);
+		bootstrap.startAgent(MainAgent.class, isDefaultMap, isDebugMode);
 	}
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception {
-		Main.stage=primaryStage;
+		StartWindow.stage=primaryStage;
 		primaryStage.setWidth(700);
 		primaryStage.setHeight(700);
 		primaryStage.setTitle("Launching options");
@@ -77,16 +78,19 @@ public class Main extends Application{
             		*/
 
             		boolean isDefaultMap = defaultMapCheckBox.isSelected();
+            		boolean isDebugMode = debugModeCheckBox.isSelected();
             		//Pass stuff here as well
-					Main.spawnMainAgent(isDefaultMap);
+					StartWindow.spawnMainAgent(isDefaultMap, isDebugMode);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
             }
         });
 
-		defaultMapCheckBox = new CheckBox("DefaultMap");
+		defaultMapCheckBox = new CheckBox("Default Map");
 		defaultMapCheckBox.setSelected(true);
+		debugModeCheckBox = new CheckBox("Debug Mode");
+		debugModeCheckBox.setSelected(true);
 		/*
 		benchesCheckBox = new CheckBox("Benches");
 		benchesCheckBox.setSelected(true);
@@ -163,6 +167,7 @@ public class Main extends Application{
 		layout.getChildren().add(agentsTotalLabel);
 		*/
 		layout.getChildren().add(defaultMapCheckBox);
+		layout.getChildren().add(debugModeCheckBox);
 		layout.getChildren().add(startButton);
 		
 		layout.setAlignment(Pos.CENTER); 
