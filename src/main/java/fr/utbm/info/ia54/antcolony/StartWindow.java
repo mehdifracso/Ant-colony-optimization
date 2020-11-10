@@ -11,6 +11,8 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.RadioButton;
+import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
@@ -22,8 +24,8 @@ public class StartWindow extends Application{
 	private Scene s;
 	private VBox layout;
 	private Button startButton;
-	private CheckBox defaultMapCheckBox;
 	private CheckBox debugModeCheckBox;
+	private ToggleGroup mapGroup;
 	/*
 	private CheckBox benchesCheckBox;
 	private CheckBox exitCheckBox;
@@ -47,9 +49,9 @@ public class StartWindow extends Application{
 	}
 	*/
 	
-	public static void spawnMainAgent(boolean isDefaultMap, boolean isDebugMode) throws Exception {
+	public static void spawnMainAgent(String map, boolean isDebugMode) throws Exception {
 		SREBootstrap bootstrap = SRE.getBootstrap();
-		bootstrap.startAgent(MainAgent.class, isDefaultMap, isDebugMode);
+		bootstrap.startAgent(MainAgent.class, map, isDebugMode);
 	}
 	
 	@Override
@@ -76,100 +78,49 @@ public class StartWindow extends Application{
             		int agentsSimultaneous =  (int) agentsSimultaneousSlider.getValue();
             		int agentsTotal =  (int) agentsTotalSlider.getValue();
             		*/
-
-            		boolean isDefaultMap = defaultMapCheckBox.isSelected();
+            		
+            		String map = mapGroup.getSelectedToggle().getUserData().toString();
             		boolean isDebugMode = debugModeCheckBox.isSelected();
             		//Pass stuff here as well
-					StartWindow.spawnMainAgent(isDefaultMap, isDebugMode);
+					StartWindow.spawnMainAgent(map, isDebugMode);
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
             }
         });
-
-		defaultMapCheckBox = new CheckBox("Default Map");
-		defaultMapCheckBox.setSelected(true);
+		
+		mapGroup = new ToggleGroup();
+		
+		RadioButton defaultMapButton = new RadioButton("5 French Cities");
+		defaultMapButton.setUserData("Default Map");
+		defaultMapButton.setSelected(true);
+		defaultMapButton.setToggleGroup(mapGroup);
+		
+		RadioButton usCapitals = new RadioButton("48 US Capitals");
+		usCapitals.setUserData("USCapitals");
+		usCapitals.setSelected(false);
+		usCapitals.setToggleGroup(mapGroup);
+		
+		RadioButton randomCities = new RadioButton("532 Random Cities");
+		randomCities.setUserData("RandomCities");
+		randomCities.setSelected(false);
+		randomCities.setToggleGroup(mapGroup);
+		
+		RadioButton usCities = new RadioButton("13509 US Cities");
+		usCities.setUserData("USCities");
+		usCities.setSelected(false);
+		usCities.setToggleGroup(mapGroup);
+		
 		debugModeCheckBox = new CheckBox("Debug Mode");
 		debugModeCheckBox.setSelected(false);
-		/*
-		benchesCheckBox = new CheckBox("Benches");
-		benchesCheckBox.setSelected(true);
-		exitCheckBox = new CheckBox("Random exit");
-		agentsDelaySlider = new Slider();
-		agentsDelaySlider.setMin(0.1);
-		agentsDelaySlider.setMax(5);
-		agentsDelaySlider.setValue(2); 
-		agentsDelaySlider.setBlockIncrement(0.1);
 		
-		agentsDelayLabel = new Label("Agent spawn delay : " + agentsDelaySlider.getValue() + " seconds");
+		layout.getChildren().add(defaultMapButton);
+		layout.getChildren().add(usCapitals);
+		layout.getChildren().add(randomCities);
+		layout.getChildren().add(usCities);
 		
-		agentsDelaySlider.valueProperty().addListener( 
-	             new ChangeListener<Number>() { 
-	  
-	            public void changed(ObservableValue <? extends Number >  
-	                      observable, Number oldValue, Number newValue) 
-	            { 
-	            	DecimalFormatSymbols symbols = new DecimalFormatSymbols();
-	            	symbols.setDecimalSeparator('.');
-	            	DecimalFormat dec = new DecimalFormat("#0.0", symbols);
-	            	
-	            	double val = Double.parseDouble(dec.format(newValue.doubleValue()));
-	            	
-	            	agentsDelaySlider.setValue(val);
-	                agentsDelayLabel.setText("Agent spawn delay: " + val + " seconds"); 
-	            }
-	    });
-		
-		agentsSimultaneousSlider = new Slider();
-		agentsSimultaneousSlider.setMin(1);
-		agentsSimultaneousSlider.setMax(5000);
-		agentsSimultaneousSlider.setValue(50); 
-		
-		agentsSimultaneousLabel = new Label("Amount of simulateneous agents : " + (int)agentsSimultaneousSlider.getValue());
-		
-		agentsSimultaneousSlider.valueProperty().addListener( 
-	             new ChangeListener<Number>() { 
-	  
-	            public void changed(ObservableValue <? extends Number >  
-	                      observable, Number oldValue, Number newValue) 
-	            { 
-	            	
-	            	agentsSimultaneousSlider.setValue(Math.round(newValue.doubleValue()));
-	            	agentsSimultaneousLabel.setText("Amount of simulateneous agents: " + Math.round(newValue.doubleValue())); 
-	            }
-	    });
-		
-		agentsTotalSlider = new Slider();
-		agentsTotalSlider.setMin(1);
-		agentsTotalSlider.setMax(5000);
-		agentsTotalSlider.setValue(100); 
-		
-		agentsTotalLabel = new Label("Amount of total agents to spawn : " + (int)agentsTotalSlider.getValue());
-		
-		agentsTotalSlider.valueProperty().addListener( 
-	             new ChangeListener<Number>() { 
-	  
-	            public void changed(ObservableValue <? extends Number >  
-	                      observable, Number oldValue, Number newValue) 
-	            { 
-	            	agentsTotalSlider.setValue(Math.round(newValue.doubleValue()));
-	            	agentsTotalLabel.setText("Amount of total agents to spawn : " + Math.round(newValue.doubleValue())); 
-	            }
-	    });
-		
-		layout.getChildren().add(benchesCheckBox);
-		layout.getChildren().add(exitCheckBox);
-		layout.getChildren().add(agentsDelaySlider);
-		layout.getChildren().add(agentsDelayLabel);
-		layout.getChildren().add(agentsSimultaneousSlider);
-		layout.getChildren().add(agentsSimultaneousLabel);
-		layout.getChildren().add(agentsTotalSlider);
-		layout.getChildren().add(agentsTotalLabel);
-		*/
-		layout.getChildren().add(defaultMapCheckBox);
 		layout.getChildren().add(debugModeCheckBox);
 		layout.getChildren().add(startButton);
-		
 		layout.setAlignment(Pos.CENTER); 
 		
 		s = new Scene(layout, 600, 600);

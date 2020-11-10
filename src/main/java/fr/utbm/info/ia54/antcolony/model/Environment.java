@@ -1,7 +1,10 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Scanner;
 import java.util.UUID;
 
 import javafx.scene.shape.Circle;
@@ -16,13 +19,66 @@ public class Environment {
 	public List<Road> roads;
 	
 	
-	public Environment(boolean isDefaultMap)
+	public Environment(String map)
 	{
 		cities=new ArrayList<City>();
 		roads=new ArrayList<Road>();
-		if(isDefaultMap)
+		if(map.equals("Default Map"))
 		{
 			makeDefaultMap();
+		}
+		else
+		{
+			File mapFile = new File("src/main/java/fr/utbm/info/ia54/antcolony/model/benchmarks/"+map+".tsp");
+			Scanner scanner = null;
+			String line = null;
+			String data[] = null;
+			City city;
+			try 
+			{
+				scanner = new Scanner(mapFile);
+			} 
+			catch (FileNotFoundException e) 
+			{
+				System.out.println("Error reading map file.");
+			}
+			while (scanner.hasNextLine()) 
+			{
+				line = scanner.nextLine();
+				if(line != null && !line.isEmpty() && Character.isDigit(line.charAt(0)))
+				{
+					data = line.split(" ");
+					city=new City();
+					city.setName("City "+data[0]);
+					city.setX(Double.parseDouble(data[1]));
+					city.setY(Double.parseDouble(data[2]));
+					cities.add(city);
+				}
+			}
+			
+			autoGenerateRoads();
+			
+		}
+	}
+	
+	//Generates roads with timeTaken based on distance
+	public void autoGenerateRoads()
+	{
+		Road road;
+		Double dist;
+		int i,j;
+		
+		for(i=0;i<this.cities.size();i++)
+		{
+			for(j=i+1;j<this.cities.size();j++)
+			{
+				road=new Road();
+				road.setCity1(getCityByName(this.cities.get(i).getName()));
+				road.setCity2(getCityByName(this.cities.get(j).getName()));
+				dist = Math.sqrt(Math.pow(this.cities.get(i).getX()-this.cities.get(j).getX(),2)+Math.pow(this.cities.get(i).getY()-this.cities.get(j).getY(),2));
+				road.setTimeTaken(new Long(dist.longValue()));
+				roads.add(road);
+			}
 		}
 	}
 	

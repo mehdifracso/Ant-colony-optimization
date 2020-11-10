@@ -14,6 +14,7 @@ public class City
 	//What the city is called
 	private String name;
 	
+	//TODO : Use Vector2d instead
 	//Where the city will appear on the map
 	private Double x;
 	private Double y;

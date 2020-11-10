@@ -36,6 +36,7 @@ public class Display{
         });
 	}
 
+	//TODO : scale bigger maps to fit on the screen + Check if the map is correct
     public void displaySimulationFrame() {
 
     	//I dont get it but somehow if I dont include the group stuff here I get errors in the console

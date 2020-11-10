@@ -27,6 +27,7 @@ import io.sarl.lang.scoping.extensions.cast.PrimitiveCastExtensions;
 import io.sarl.lang.util.ClearableReference;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import javax.inject.Inject;
 import org.eclipse.xtext.xbase.lib.Extension;
@@ -44,7 +45,7 @@ public class MainAgent extends Agent {
   
   private Metrics met;
   
-  private Boolean isDefaultMap;
+  private String map;
   
   private Boolean isDebugMode;
   
@@ -55,10 +56,10 @@ public class MainAgent extends Agent {
       Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
       _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("Main agent spawned !");
       Object _get = occurrence.parameters[0];
-      this.isDefaultMap = ((Boolean) _get);
+      this.map = (_get == null ? null : _get.toString());
       Object _get_1 = occurrence.parameters[1];
       this.isDebugMode = ((Boolean) _get_1);
-      Environment _environment = new Environment(((this.isDefaultMap) == null ? false : (this.isDefaultMap).booleanValue()));
+      Environment _environment = new Environment(this.map);
       this.env = _environment;
       Metrics _metrics = new Metrics(this.env);
       this.met = _metrics;
@@ -81,7 +82,7 @@ public class MainAgent extends Agent {
   
   protected void displayLoop() {
     synchronized (this) {
-      int framerate = 20;
+      int framerate = 60;
       Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
       final AgentTask taskMain = _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER.task("Main Loop");
       Schedules _$CAPACITY_USE$IO_SARL_CORE_SCHEDULES$CALLER_1 = this.$castSkill(Schedules.class, (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES == null || this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES = this.$getSkill(Schedules.class)) : this.$CAPACITY_USE$IO_SARL_CORE_SCHEDULES);
@@ -232,8 +233,9 @@ public class MainAgent extends Agent {
     if (getClass() != obj.getClass())
       return false;
     MainAgent other = (MainAgent) obj;
-    if (other.isDefaultMap != this.isDefaultMap)
+    if (!Objects.equals(this.map, other.map)) {
       return false;
+    }
     if (other.isDebugMode != this.isDebugMode)
       return false;
     return super.equals(obj);
@@ -245,7 +247,7 @@ public class MainAgent extends Agent {
   public int hashCode() {
     int result = super.hashCode();
     final int prime = 31;
-    result = prime * result + (this.isDefaultMap ? 1231 : 1237);
+    result = prime * result + Objects.hashCode(this.map);
     result = prime * result + (this.isDebugMode ? 1231 : 1237);
     return result;
   }

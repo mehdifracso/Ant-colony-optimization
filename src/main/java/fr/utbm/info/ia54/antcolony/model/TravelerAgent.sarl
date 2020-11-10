@@ -34,6 +34,7 @@ agent TravelerAgent
 
 	on Initialize 
 	{
+		//TODO : find why too many agents crash
 		synchronized(this)
 		{
 			env = occurrence.parameters.get(0) as Environment;
