@@ -26,7 +26,7 @@ public class City
 		Circle cityDisplay=new Circle();
 		
 		Color cityColor=Color.GRAY;
-		Integer cityRadius=15;
+		Integer cityRadius=5;
 		
 		cityDisplay.setCenterX(x);
 		cityDisplay.setCenterY(y);

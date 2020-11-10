@@ -88,9 +88,24 @@ public class Road
 	{
 		Line roadLine=new Line();
 		
-		Color roadColor=Color.DARKGRAY;
+		Color roadColor=Color.BLACK;
 		
-		roadLine.setFill(roadColor);
+		roadLine.setStroke(roadColor);
+		roadLine.setStartX(city1.getX());
+		roadLine.setStartY(city1.getY());
+		roadLine.setEndX(city2.getX());
+		roadLine.setEndY(city2.getY());
+		
+		return roadLine;
+	}
+	
+	public Line getHighlightedLine()
+	{
+		Line roadLine=new Line();
+		
+		Color roadColor=Color.RED;
+		
+		roadLine.setStroke(roadColor);
 		roadLine.setStartX(city1.getX());
 		roadLine.setStartY(city1.getY());
 		roadLine.setEndX(city2.getX());

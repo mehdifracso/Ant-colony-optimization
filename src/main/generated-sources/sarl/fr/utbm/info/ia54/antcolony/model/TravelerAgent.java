@@ -1,5 +1,6 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import com.google.common.base.Objects;
 import fr.utbm.info.ia54.antcolony.model.City;
 import fr.utbm.info.ia54.antcolony.model.Environment;
 import fr.utbm.info.ia54.antcolony.model.ExitApplicationEvent;
@@ -89,7 +90,7 @@ public class TravelerAgent extends Agent {
   protected void travel() {
     synchronized (this) {
       Road road = null;
-      while ((this.visitedCities.size() != this.env.cities.size())) {
+      while (((this.visitedCities.size() != this.env.cities.size()) || (!Objects.equal(this.currentCity, this.startingCity)))) {
         {
           road = this.pickRoad();
           Long _timeTaken = road.getTimeTaken();
@@ -132,13 +133,59 @@ public class TravelerAgent extends Agent {
         if ((chosenRoad == null)) {
           if ((totalWeights != null && (totalWeights.floatValue() == 0))) {
             int _size = availableRoads.size();
-            cumulativeNormalizedReverseWeights = Float.valueOf((((cumulativeNormalizedReverseWeights) == null ? 0 : (cumulativeNormalizedReverseWeights).floatValue()) + (1f / _size)));
+            cumulativeNormalizedReverseWeights = Float.valueOf((((cumulativeNormalizedReverseWeights) == null ? 0 : (cumulativeNormalizedReverseWeights).floatValue()) + 
+              (1f / _size)));
             if ((rng.floatValue() < cumulativeNormalizedReverseWeights.doubleValue())) {
               chosenRoad = road_2;
             }
           } else {
             Long _weight_2 = road_2.getWeight();
             reverseWeights = Float.valueOf((((totalWeights) == null ? 0 : (totalWeights).floatValue()) - ((_weight_2) == null ? 0 : (_weight_2).longValue())));
+            NormalizedReverseWeights = Float.valueOf((((reverseWeights) == null ? 0 : (reverseWeights).floatValue()) / ((totalReverseWeights) == null ? 0 : (totalReverseWeights).floatValue())));
+            cumulativeNormalizedReverseWeights = Float.valueOf((((cumulativeNormalizedReverseWeights) == null ? 0 : (cumulativeNormalizedReverseWeights).floatValue()) + ((NormalizedReverseWeights) == null ? 0 : (NormalizedReverseWeights).floatValue())));
+            if ((rng.floatValue() < cumulativeNormalizedReverseWeights.doubleValue())) {
+              chosenRoad = road_2;
+            }
+          }
+        }
+      }
+      return chosenRoad;
+    }
+  }
+  
+  @Pure
+  protected Road pickRoadAlt() {
+    synchronized (this) {
+      Road chosenRoad = null;
+      List<Road> availableRoads = new ArrayList<Road>();
+      Float reverseWeights = new Float(0);
+      Float NormalizedReverseWeights = new Float(0);
+      Float cumulativeNormalizedReverseWeights = new Float(0);
+      Float totalWeights = new Float(0);
+      Float totalReverseWeights = new Float(0);
+      Float rng = Float.valueOf(new Random().nextFloat());
+      availableRoads = this.env.getAdjacentRoads(this.currentCity);
+      Road.sortRoadsByWeights(availableRoads);
+      for (final Road road : availableRoads) {
+        Long _weight = road.getWeight();
+        totalWeights = Float.valueOf((((totalWeights) == null ? 0 : (totalWeights).floatValue()) + ((_weight) == null ? 0 : (_weight).longValue())));
+      }
+      for (final Road road_1 : availableRoads) {
+        Long _weight_1 = road_1.getWeight();
+        totalReverseWeights = Float.valueOf(((((totalReverseWeights) == null ? 0 : (totalReverseWeights).floatValue()) + ((totalWeights) == null ? 0 : (totalWeights).floatValue())) - ((_weight_1) == null ? 0 : (_weight_1).longValue())));
+      }
+      for (final Road road_2 : availableRoads) {
+        if ((chosenRoad == null)) {
+          if ((totalWeights != null && (totalWeights.floatValue() == 0))) {
+            int _size = availableRoads.size();
+            cumulativeNormalizedReverseWeights = Float.valueOf((((cumulativeNormalizedReverseWeights) == null ? 0 : (cumulativeNormalizedReverseWeights).floatValue()) + 
+              (1f / _size)));
+            if ((rng.floatValue() < cumulativeNormalizedReverseWeights.doubleValue())) {
+              chosenRoad = road_2;
+            }
+          } else {
+            Long _weight_2 = road_2.getWeight();
+            reverseWeights = Float.valueOf((((totalReverseWeights) == null ? 0 : (totalReverseWeights).floatValue()) - ((_weight_2) == null ? 0 : (_weight_2).longValue())));
             NormalizedReverseWeights = Float.valueOf((((reverseWeights) == null ? 0 : (reverseWeights).floatValue()) / ((totalReverseWeights) == null ? 0 : (totalReverseWeights).floatValue())));
             cumulativeNormalizedReverseWeights = Float.valueOf((((cumulativeNormalizedReverseWeights) == null ? 0 : (cumulativeNormalizedReverseWeights).floatValue()) + ((NormalizedReverseWeights) == null ? 0 : (NormalizedReverseWeights).floatValue())));
             if ((rng.floatValue() < cumulativeNormalizedReverseWeights.doubleValue())) {

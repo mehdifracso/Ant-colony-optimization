@@ -50,6 +50,7 @@ public class Display{
     	g.getChildren().addAll(environment.getCitiesRepresentation());
     	g.getChildren().addAll(environment.getCitiesNames());
     	g.getChildren().addAll(environment.getRoadsRepresentation());
+    	g.getChildren().addAll(metrics.getFastestRoadsRepresentation());
     	
     	if(debug)
     	{

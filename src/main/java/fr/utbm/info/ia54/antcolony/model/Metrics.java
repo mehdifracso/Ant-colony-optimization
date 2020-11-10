@@ -1,8 +1,10 @@
 package fr.utbm.info.ia54.antcolony.model;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 
 public class Metrics
@@ -12,6 +14,7 @@ public class Metrics
 	private Calendar startTime;
 	private String fastestTime;
 	private String fastestPath;
+	private List<Road> fastestPathObj; //Use this to know which path to highlight
 	private Integer roundsElapsed;
 	private Integer totalCities;
 	private Integer activeAgents;
@@ -25,6 +28,7 @@ public class Metrics
 		startTime = Calendar.getInstance();
 		fastestTime = "TBD";
 		fastestPath = "TBD";
+		fastestPathObj = new ArrayList<Road>();
 		roundsElapsed = 0;
 		totalCities = env.cities.size();
 		activeAgents = 0;
@@ -57,6 +61,7 @@ public class Metrics
 
 
 	public void setFormattedFastestPath(List<Road> pathTaken) {
+		this.fastestPathObj=pathTaken;
 		String fastestPathString = "\n";
 		City currentCity = null;
 
@@ -90,6 +95,18 @@ public class Metrics
 	}
 	
 	
+	public List<Line> getFastestRoadsRepresentation()
+	{
+		List<Line> roadsRep=new ArrayList<Line>();
+		
+		for(Road road : fastestPathObj)
+		{
+			roadsRep.add(road.getHighlightedLine());
+		}
+		
+		return roadsRep;
+	}
+	
 	public Text getDisplay() {
 		return display;
 	}
@@ -120,6 +137,14 @@ public class Metrics
 
 	public void setFastestPath(String fastestPath) {
 		this.fastestPath = fastestPath;
+	}
+
+	public List<Road> getFastestPathObj() {
+		return fastestPathObj;
+	}
+
+	public void setFastestPathObj(List<Road> fastestPathObj) {
+		this.fastestPathObj = fastestPathObj;
 	}
 
 	public Integer getRoundsElapsed() {

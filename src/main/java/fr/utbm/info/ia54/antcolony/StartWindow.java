@@ -90,7 +90,7 @@ public class StartWindow extends Application{
 		defaultMapCheckBox = new CheckBox("Default Map");
 		defaultMapCheckBox.setSelected(true);
 		debugModeCheckBox = new CheckBox("Debug Mode");
-		debugModeCheckBox.setSelected(true);
+		debugModeCheckBox.setSelected(false);
 		/*
 		benchesCheckBox = new CheckBox("Benches");
 		benchesCheckBox.setSelected(true);

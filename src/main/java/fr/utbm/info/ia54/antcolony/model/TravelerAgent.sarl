@@ -64,7 +64,7 @@ agent TravelerAgent
 		synchronized(this)
 		{
 			var road : Road = null;
-			while (visitedCities.size() != env.cities.size()) 
+			while (visitedCities.size() != env.cities.size() || currentCity!=startingCity) 
 			{
 				//pick a road
 				// Thats the most complex thing so Ill put it in another function
@@ -87,11 +87,9 @@ agent TravelerAgent
 	}
 
 	//Maybe use SARL to build several road picking skills to test different methods of optimization
-	//Maybe double check if all cities are connected if ever using custom maps ?
-	def pickRoad() : Road
-	{
-		synchronized(this)
-		{
+	// Maybe double check if all cities are connected if ever using custom maps ?
+	def pickRoad() : Road {
+		synchronized (this) {
 			var chosenRoad : Road = null;
 			var availableRoads : List<Road> = new ArrayList<Road>();
 			var reverseWeights : Float = new Float(0);
@@ -107,31 +105,70 @@ agent TravelerAgent
 			for (road : availableRoads) {
 				totalWeights = totalWeights + road.weight;
 			}
-			for(road : availableRoads)
-			{
+			for (road : availableRoads) {
 				totalReverseWeights = totalReverseWeights + totalWeights - road.weight;
 			}
-			
-			for(road : availableRoads)
-			{
-				if(chosenRoad===null)
-				{
-					if(totalWeights==0)
-					{
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights + 1f / availableRoads.size();
-						if (rng < cumulativeNormalizedReverseWeights)
-						{
+
+			for (road : availableRoads) {
+				if (chosenRoad === null) {
+					if (totalWeights == 0) {
+						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+							1f / availableRoads.size();
+						if (rng < cumulativeNormalizedReverseWeights) {
+							chosenRoad = road;
+						}
+					} else {
+						// We want smaller weights to be picked more often so we used reverse weights
+						reverseWeights = totalWeights - road.weight;
+						NormalizedReverseWeights = reverseWeights / totalReverseWeights;
+						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+							NormalizedReverseWeights;
+						if (rng < cumulativeNormalizedReverseWeights) {
 							chosenRoad = road;
 						}
 					}
-					else
-					{
+				}
+			}
+			return chosenRoad;
+		}
+	}
+
+	def pickRoadAlt() : Road {
+		synchronized (this) {
+			var chosenRoad : Road = null;
+			var availableRoads : List<Road> = new ArrayList<Road>();
+			var reverseWeights : Float = new Float(0);
+			var NormalizedReverseWeights : Float = new Float(0);
+			var cumulativeNormalizedReverseWeights : Float = new Float(0);
+			var totalWeights : Float = new Float(0);
+			var totalReverseWeights : Float = new Float(0);
+			var rng : Float = new Random().nextFloat();
+
+			availableRoads = env.getAdjacentRoads(currentCity);
+			Road.sortRoadsByWeights(availableRoads);
+
+			for (road : availableRoads) {
+				totalWeights = totalWeights + road.weight;
+			}
+			for (road : availableRoads) {
+				totalReverseWeights = totalReverseWeights + totalWeights - road.weight;
+			}
+
+			for (road : availableRoads) {
+				if (chosenRoad === null) {
+					if (totalWeights == 0) {
+						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+							1f / availableRoads.size();
+						if (rng < cumulativeNormalizedReverseWeights) {
+							chosenRoad = road;
+						}
+					} else {
 						// We want smaller weights to be picked more often so we used reverse weights
-						reverseWeights = totalWeights - road.weight;
-						NormalizedReverseWeights = reverseWeights/totalReverseWeights;
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights + NormalizedReverseWeights;
-						if (rng < cumulativeNormalizedReverseWeights)
-						{
+						reverseWeights = totalReverseWeights - road.weight;
+						NormalizedReverseWeights = reverseWeights / totalReverseWeights;
+						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+							NormalizedReverseWeights;
+						if (rng < cumulativeNormalizedReverseWeights) {
 							chosenRoad = road;
 						}
 					}
