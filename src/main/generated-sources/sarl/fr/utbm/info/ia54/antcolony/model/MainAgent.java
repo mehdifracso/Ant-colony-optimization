@@ -90,12 +90,14 @@ public class MainAgent extends Agent {
   }
   
   protected void startAgents() {
-    List<City> _cities = this.env.getCities();
-    for (final City startCity : _cities) {
-      {
-        this.met.increaseActiveAgents();
-        Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-        _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(TravelerAgent.class, this.env, this.met, startCity, this.isDebugMode);
+    synchronized (this.met) {
+      List<City> _cities = this.env.getCities();
+      for (final City startCity : _cities) {
+        {
+          this.met.increaseActiveAgents();
+          Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+          _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(TravelerAgent.class, this.env, this.met, startCity, this.isDebugMode);
+        }
       }
     }
   }
