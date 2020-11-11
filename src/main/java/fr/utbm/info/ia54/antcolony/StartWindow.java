@@ -8,12 +8,14 @@ import javafx.application.Application;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.geometry.Pos;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
 public class StartWindow extends Application{
@@ -57,8 +59,11 @@ public class StartWindow extends Application{
 	@Override
 	public void start(Stage primaryStage) throws Exception {
 		StartWindow.stage=primaryStage;
-		primaryStage.setWidth(700);
-		primaryStage.setHeight(700);
+
+		Rectangle2D	screenBounds = Screen.getPrimary().getBounds();
+		primaryStage.setWidth(screenBounds.getMaxX());
+		primaryStage.setHeight(screenBounds.getMaxY());
+		
 		primaryStage.setTitle("Launching options");
 		
 		layout = new VBox();

@@ -7,9 +7,11 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.UUID;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 
 
 public class Environment {
@@ -33,6 +35,8 @@ public class Environment {
 			Scanner scanner = null;
 			String line = null;
 			String data[] = null;
+			Double maxX = new Double(0);
+			Double maxY = new Double(0);
 			City city;
 			try 
 			{
@@ -53,11 +57,14 @@ public class Environment {
 					city.setX(Double.parseDouble(data[1]));
 					city.setY(Double.parseDouble(data[2]));
 					cities.add(city);
+
+					maxX=Math.max(Double.parseDouble(data[1]), maxX);
+					maxY=Math.max(Double.parseDouble(data[2]), maxY);
 				}
 			}
 			
 			autoGenerateRoads();
-			
+			resizeMap(maxX, maxY);
 		}
 	}
 	
@@ -80,6 +87,18 @@ public class Environment {
 				roads.add(road);
 			}
 		}
+	}
+	
+	public void resizeMap(Double maxX, Double maxY)
+	{
+		Rectangle2D screenBounds = Screen.getPrimary().getBounds();
+		Double scale = Math.min(maxX/screenBounds.getMaxX() , maxY/screenBounds.getMaxY())*2;
+		for(City city : cities)
+		{
+			city.setX(city.getX()/scale);
+			city.setY(city.getY()/scale);
+		}
+		System.out.println(screenBounds.getMaxY());
 	}
 	
 	public void makeDefaultMap()

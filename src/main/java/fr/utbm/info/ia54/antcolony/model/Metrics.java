@@ -4,8 +4,10 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
 
+import javafx.geometry.Rectangle2D;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
+import javafx.stage.Screen;
 
 public class Metrics
 {
@@ -21,8 +23,9 @@ public class Metrics
 	
 	public Metrics(Environment env)
 	{
+		Rectangle2D	screenBounds = Screen.getPrimary().getBounds();
 		display=new Text();
-		display.setX(925);
+		display.setX(screenBounds.getMaxX()*0.75);
 		display.setY(25);
 		
 		startTime = Calendar.getInstance();
@@ -48,7 +51,7 @@ public class Metrics
 			+ "Elapsed time : " + (Calendar.getInstance().getTime().getTime() - startTime.getTime().getTime())/1000 + " s\n"
 			+ "Elapsed rounds : " + roundsElapsed + "\n"
 			+ "Active agents : " + activeAgents + "/ "+ totalCities + "\n"
-			+ "Fastest time : " + fastestTime + "min\n" //Arbitrary unit I decided of in environment
+			+ "Fastest time : " + fastestTime + " Arbitrary Units\n"
 			+ "Fastest path : " + fastestPath + "\n"
 			);
 	}

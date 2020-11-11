@@ -18,6 +18,7 @@ import java.util.Set
  * @author ma-pe
  * 
  */
+@SuppressWarnings("potential_field_synchronization_problem")
 agent TravelerAgent 
 {
 
@@ -35,148 +36,96 @@ agent TravelerAgent
 	on Initialize 
 	{
 		//TODO : find why too many agents crash
-		synchronized(this)
-		{
-			env = occurrence.parameters.get(0) as Environment;
-			met = occurrence.parameters.get(1) as Metrics;
-			startingCity = occurrence.parameters.get(2) as City;
-			isDebugMode = occurrence.parameters.get(3) as Boolean;
-			
-			currentCity = startingCity;
-			visitedCities = new HashSet<City>();
-			visitedCities.add(startingCity);
-			travelledRoads = new ArrayList<Road>();
-			travelTime=new Long(0);
+		env = occurrence.parameters.get(0) as Environment;
+		met = occurrence.parameters.get(1) as Metrics;
+		startingCity = occurrence.parameters.get(2) as City;
+		isDebugMode = occurrence.parameters.get(3) as Boolean;
+		
+		currentCity = startingCity;
+		visitedCities = new HashSet<City>();
+		visitedCities.add(startingCity);
+		travelledRoads = new ArrayList<Road>();
+		travelTime=new Long(0);
 
-			loggingName = "Traveler Agent - Round " + met.roundsElapsed + " - Starting city " + startingCity.name;
-			
-			if(isDebugMode)
-			{
-				info("Traveler agent spawned !");
-			}
-			
-			travel();
+		loggingName = "Traveler Agent - Round " + met.roundsElapsed + " - Starting city " + startingCity.name;
+		
+		if(isDebugMode)
+		{
+			info("Traveler agent spawned !");
 		}
+		
+		travel();
 
 	}
 	
 	def travel() : void
 	{
-		synchronized(this)
+		var road : Road = null;
+		while (visitedCities.size() != env.cities.size() || currentCity!=startingCity) 
 		{
-			var road : Road = null;
-			while (visitedCities.size() != env.cities.size() || currentCity!=startingCity) 
-			{
-				//pick a road
-				// Thats the most complex thing so Ill put it in another function
-				road = pickRoad();
-				
-				//add traveltime
-				travelTime=travelTime+road.timeTaken;
-				
-				//add to travelledroads and visitedcities (Dont need to worry about which one it is since this is a set)
-				travelledRoads.add(road);
-				visitedCities.addAll(road.getCities());
-				
-				//change location
-				currentCity=road.travel(currentCity);
+			//pick a road
+			// Thats the most complex thing so Ill put it in another function
+			road = pickRoad();
+			
+			//add traveltime
+			travelTime=travelTime+road.timeTaken;
+			
+			//add to travelledroads and visitedcities (Dont need to worry about which one it is since this is a set)
+			travelledRoads.add(road);
+			visitedCities.addAll(road.getCities());
+			
+			//change location
+			currentCity=road.travel(currentCity);
 
-			}
-			emit(new TravelsFinished(travelledRoads,travelTime))
-			killMe;
 		}
+		emit(new TravelsFinished(travelledRoads,travelTime))
+		killMe;
 	}
 
 	//Maybe use SARL to build several road picking skills to test different methods of optimization
 	// Maybe double check if all cities are connected if ever using custom maps ?
-	def pickRoad() : Road {
-		synchronized (this) {
-			var chosenRoad : Road = null;
-			var availableRoads : List<Road> = new ArrayList<Road>();
-			var reverseWeights : Float = new Float(0);
-			var NormalizedReverseWeights : Float = new Float(0);
-			var cumulativeNormalizedReverseWeights : Float = new Float(0);
-			var totalWeights : Float = new Float(0);
-			var totalReverseWeights : Float = new Float(0);
-			var rng : Float = new Random().nextFloat();
+	def pickRoad() : Road 
+	{
+		var chosenRoad : Road = null;
+		var availableRoads : List<Road> = new ArrayList<Road>();
+		var reverseWeights : Float = new Float(0);
+		var NormalizedReverseWeights : Float = new Float(0);
+		var cumulativeNormalizedReverseWeights : Float = new Float(0);
+		var totalWeights : Float = new Float(0);
+		var totalReverseWeights : Float = new Float(0);
+		var rng : Float = new Random().nextFloat();
 
-			availableRoads = env.getAdjacentRoads(currentCity);
-			Road.sortRoadsByWeights(availableRoads);
+		availableRoads = env.getAdjacentRoads(currentCity);
+		Road.sortRoadsByWeights(availableRoads);
 
-			for (road : availableRoads) {
-				totalWeights = totalWeights + road.weight;
-			}
-			for (road : availableRoads) {
-				totalReverseWeights = totalReverseWeights + totalWeights - road.weight;
-			}
+		for (road : availableRoads) {
+			totalWeights = totalWeights + road.weight;
+		}
+		for (road : availableRoads) {
+			totalReverseWeights = totalReverseWeights + totalWeights - road.weight;
+		}
 
-			for (road : availableRoads) {
-				if (chosenRoad === null) {
-					if (totalWeights == 0) {
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
-							1f / availableRoads.size();
-						if (rng < cumulativeNormalizedReverseWeights) {
-							chosenRoad = road;
-						}
-					} else {
-						// We want smaller weights to be picked more often so we used reverse weights
-						reverseWeights = totalWeights - road.weight;
-						NormalizedReverseWeights = reverseWeights / totalReverseWeights;
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
-							NormalizedReverseWeights;
-						if (rng < cumulativeNormalizedReverseWeights) {
-							chosenRoad = road;
-						}
+		for (road : availableRoads) {
+			if (chosenRoad === null) {
+				if (totalWeights == 0) {
+					cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+						1f / availableRoads.size();
+					if (rng < cumulativeNormalizedReverseWeights) {
+						chosenRoad = road;
+					}
+				} else {
+					// We want smaller weights to be picked more often so we used reverse weights
+					reverseWeights = totalWeights - road.weight;
+					NormalizedReverseWeights = reverseWeights / totalReverseWeights;
+					cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
+						NormalizedReverseWeights;
+					if (rng < cumulativeNormalizedReverseWeights) {
+						chosenRoad = road;
 					}
 				}
 			}
-			return chosenRoad;
 		}
-	}
-
-	def pickRoadAlt() : Road {
-		synchronized (this) {
-			var chosenRoad : Road = null;
-			var availableRoads : List<Road> = new ArrayList<Road>();
-			var reverseWeights : Float = new Float(0);
-			var NormalizedReverseWeights : Float = new Float(0);
-			var cumulativeNormalizedReverseWeights : Float = new Float(0);
-			var totalWeights : Float = new Float(0);
-			var totalReverseWeights : Float = new Float(0);
-			var rng : Float = new Random().nextFloat();
-
-			availableRoads = env.getAdjacentRoads(currentCity);
-			Road.sortRoadsByWeights(availableRoads);
-
-			for (road : availableRoads) {
-				totalWeights = totalWeights + road.weight;
-			}
-			for (road : availableRoads) {
-				totalReverseWeights = totalReverseWeights + totalWeights - road.weight;
-			}
-
-			for (road : availableRoads) {
-				if (chosenRoad === null) {
-					if (totalWeights == 0) {
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
-							1f / availableRoads.size();
-						if (rng < cumulativeNormalizedReverseWeights) {
-							chosenRoad = road;
-						}
-					} else {
-						// We want smaller weights to be picked more often so we used reverse weights
-						reverseWeights = totalReverseWeights - road.weight;
-						NormalizedReverseWeights = reverseWeights / totalReverseWeights;
-						cumulativeNormalizedReverseWeights = cumulativeNormalizedReverseWeights +
-							NormalizedReverseWeights;
-						if (rng < cumulativeNormalizedReverseWeights) {
-							chosenRoad = road;
-						}
-					}
-				}
-			}
-			return chosenRoad;
-		}
+		return chosenRoad;
 	}
 
 	on ExitApplicationEvent 
@@ -186,12 +135,9 @@ agent TravelerAgent
 
 	on Destroy 
 	{
-		synchronized(this)
+		if (isDebugMode) 
 		{
-			if (isDebugMode) 
-			{
-				info("The traveler agent was stopped.")
-			}
+			info("The traveler agent was stopped.")
 		}
 	}
 }
