@@ -53,27 +53,6 @@ agent TravelerAgent
 		}
 
 		travel();
-		/*
-		synchronized (met)
-		{
-			startingCity = occurrence.parameters.get(2) as City;
-			isDebugMode = occurrence.parameters.get(3) as Boolean;
-
-			currentCity = startingCity;
-			visitedCities = new HashSet<City>();
-			visitedCities.add(startingCity);
-			travelledRoads = new ArrayList<Road>();
-			travelTime = new Long(0);
-
-			loggingName = "Traveler Agent - Round " + met.roundsElapsed + " - Starting city " + startingCity.name;
-
-			if (isDebugMode) {
-				info("Traveler agent spawned !");
-			}
-
-			travel();
-		}
-		*/
 	}
 	
 	def travel() : void
@@ -96,21 +75,7 @@ agent TravelerAgent
 			currentCity=road.travel(currentCity);
 
 		}
-		info("test before killme")
 		emit(new TravelsFinished(travelledRoads, travelTime))
-		// TODO : Crash on bigger maps
-		//Round 0 goes smoothly here
-		//But starting from round 1 city 1 (for 48 cities) or randomly around round 3-5 (for 5 cities) -
-		//the environment's lists become unreadable in the debugger
-		//And on city 31-32 it'll get stuck, entering the info before the killMe but not the killMe itself ???
-		//Also the main agent stops spawning other agents at that point ?
-		//Probably related to unreadable environment
-		//However pickRoad still seems to work fine so its not the roads themselves
-		//Its the environment
-		//Note : If I sync met in the init it will instead stop on round 1 city 1 instead of waiting for city 31, on all maps
-		if (startingCity.name.equals("City 30") || startingCity.name.equals("City 31") ||
-			startingCity.name.equals("City 32"))
-			info("debug")
 		killMe;
 	}
 
@@ -157,12 +122,6 @@ agent TravelerAgent
 				}
 			}
 		}
-		/*
-		if(currentCity==startingCity)
-		{
-			info("debug")
-		}
-		*/
 		return chosenRoad;
 	}
 
@@ -173,7 +132,6 @@ agent TravelerAgent
 
 	on Destroy 
 	{
-		info("test in killme")
 		if (isDebugMode) 
 		{
 			info("The traveler agent was stopped.")

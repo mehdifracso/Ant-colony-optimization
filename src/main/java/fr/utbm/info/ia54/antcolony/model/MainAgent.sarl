@@ -73,13 +73,15 @@ agent MainAgent
 	//Starts a new round
 	def startAgents() : void
 	{
-		synchronized(met)
-		{
-			for (startCity : env.getCities()) {
-				met.increaseActiveAgents();
+			for (startCity : env.getCities()) 
+			{
+				synchronized (met) 
+				{
+					//TODO replace Integers/Longs/etc by AtomicInteger or other thread-safe structures
+					met.increaseActiveAgents();
+				}
 				spawn(TravelerAgent, env, met, startCity, isDebugMode);
 			}
-		}
 	}
 	
 	//Records the result of a finished agent
@@ -88,35 +90,41 @@ agent MainAgent
 		synchronized(met)
 		{
 			met.decreaseActiveAgents();
-			var pathTaken : List<Road> = occurrence.pathTaken;
-			var timeTaken : Long = occurrence.timeTaken;
+		}
+		var pathTaken : List<Road> = occurrence.pathTaken;
+		var timeTaken : Long = occurrence.timeTaken;
 
-			if (met.fastestTime.equals("TBD") || timeTaken < met.fastestTime.longValue) 
+		if (met.fastestTime.equals("TBD") || timeTaken < met.fastestTime.longValue) 
+		{
+			if (isDebugMode) 
 			{
-				if (isDebugMode) 
-				{
-					info("new record!")
-				}
+				info("new record!")
+			}
+			synchronized(met)
+			{
 				met.fastestTime = timeTaken.toString();
 				met.formattedFastestPath = pathTaken;
 			}
+		}
 
-			for (road : pathTaken) 
-			{
-				road.increaseFutureWeight(timeTaken);
-			}
+		for (road : pathTaken) 
+		{
+			road.increaseFutureWeight(timeTaken);
+		}
 
-			// Updates weights & starts a new round
-			if (met.activeAgents == 0) 
+		// Updates weights & starts a new round
+		if (met.activeAgents == 0) 
+		{
+			synchronized(met)
 			{
 				met.increaseElapsedRounds();
-				env.updateWeights();
-				if (isDebugMode) 
-				{
-					info("New round")
-				}
-				startAgents();
 			}
+			env.updateWeights();
+			if (isDebugMode) 
+			{
+				info("New round")
+			}
+			startAgents();
 		}
 	}
 	

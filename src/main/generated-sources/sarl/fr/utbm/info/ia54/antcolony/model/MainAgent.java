@@ -90,14 +90,14 @@ public class MainAgent extends Agent {
   }
   
   protected void startAgents() {
-    synchronized (this.met) {
-      List<City> _cities = this.env.getCities();
-      for (final City startCity : _cities) {
-        {
+    List<City> _cities = this.env.getCities();
+    for (final City startCity : _cities) {
+      {
+        synchronized (this.met) {
           this.met.increaseActiveAgents();
-          Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
-          _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(TravelerAgent.class, this.env, this.met, startCity, this.isDebugMode);
         }
+        Lifecycle _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER = this.$castSkill(Lifecycle.class, (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE == null || this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE = this.$getSkill(Lifecycle.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE);
+        _$CAPACITY_USE$IO_SARL_CORE_LIFECYCLE$CALLER.spawn(TravelerAgent.class, this.env, this.met, startCity, this.isDebugMode);
       }
     }
   }
@@ -105,29 +105,33 @@ public class MainAgent extends Agent {
   private void $behaviorUnit$TravelsFinished$1(final TravelsFinished occurrence) {
     synchronized (this.met) {
       this.met.decreaseActiveAgents();
-      List<Road> pathTaken = occurrence.pathTaken;
-      Long timeTaken = occurrence.timeTaken;
-      if ((this.met.getFastestTime().equals("TBD") || (timeTaken.longValue() < PrimitiveCastExtensions.longValue(this.met.getFastestTime())))) {
-        if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
-          Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-          _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("new record!");
-        }
+    }
+    List<Road> pathTaken = occurrence.pathTaken;
+    Long timeTaken = occurrence.timeTaken;
+    if ((this.met.getFastestTime().equals("TBD") || (timeTaken.longValue() < PrimitiveCastExtensions.longValue(this.met.getFastestTime())))) {
+      if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
+        Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+        _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER.info("new record!");
+      }
+      synchronized (this.met) {
         this.met.setFastestTime(timeTaken.toString());
         this.met.setFormattedFastestPath(pathTaken);
       }
-      for (final Road road : pathTaken) {
-        road.increaseFutureWeight(timeTaken);
-      }
-      Integer _activeAgents = this.met.getActiveAgents();
-      if ((_activeAgents != null && (_activeAgents.intValue() == 0))) {
+    }
+    for (final Road road : pathTaken) {
+      road.increaseFutureWeight(timeTaken);
+    }
+    Integer _activeAgents = this.met.getActiveAgents();
+    if ((_activeAgents != null && (_activeAgents.intValue() == 0))) {
+      synchronized (this.met) {
         this.met.increaseElapsedRounds();
-        this.env.updateWeights();
-        if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
-          Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
-          _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("New round");
-        }
-        this.startAgents();
       }
+      this.env.updateWeights();
+      if (((this.isDebugMode) == null ? false : (this.isDebugMode).booleanValue())) {
+        Logging _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1 = this.$castSkill(Logging.class, (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING == null || this.$CAPACITY_USE$IO_SARL_CORE_LOGGING.get() == null) ? (this.$CAPACITY_USE$IO_SARL_CORE_LOGGING = this.$getSkill(Logging.class)) : this.$CAPACITY_USE$IO_SARL_CORE_LOGGING);
+        _$CAPACITY_USE$IO_SARL_CORE_LOGGING$CALLER_1.info("New round");
+      }
+      this.startAgents();
     }
   }
   

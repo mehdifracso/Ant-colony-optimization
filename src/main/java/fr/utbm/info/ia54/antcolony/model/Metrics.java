@@ -16,6 +16,7 @@ public class Metrics
 	private Calendar startTime;
 	private String fastestTime;
 	private String fastestPath;
+	//TODO : try replacing with concurrentList
 	private List<Road> fastestPathObj; //Use this to know which path to highlight
 	private Integer roundsElapsed;
 	private Integer totalCities;

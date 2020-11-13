@@ -19,4 +19,7 @@ public class ExitApplicationEvent extends Event {
   public ExitApplicationEvent(final Address source) {
     super(source);
   }
+  
+  @SyntheticMember
+  private static final long serialVersionUID = 588368462L;
 }
